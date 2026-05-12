@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, User, Home } from 'lucide-react';
 import useAuthStore from '../context/useAuthStore';
 import UTPLogo from '../components/UTPLogo';
 
@@ -25,7 +25,7 @@ const LoginPage = () => {
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-brand-red-dark/10 rounded-full blur-[120px]" />
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md relative">
-        {/* Card – negro con borde rojo sutil */}
+        {/* Card */}
         <div className="bg-brand-dark rounded-3xl p-8 space-y-6 border border-brand-border shadow-2xl red-accent-top">
           {/* Logo */}
           <div className="text-center space-y-3">
@@ -73,6 +73,12 @@ const LoginPage = () => {
               ) : 'Ingresar'}
             </button>
           </form>
+
+          {/* Botón Inicio */}
+          <Link to="/" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-brand-border text-brand-gray-400 hover:text-white hover:border-brand-red/30 hover:bg-brand-surface transition-all text-sm font-medium">
+            <Home className="w-4 h-4" />
+            Inicio
+          </Link>
 
           <p className="text-center text-xs text-brand-gray-600">
             Demo: usuario <span className="text-brand-red font-semibold">admin</span> / contraseña <span className="text-brand-red font-semibold">admin123</span>
