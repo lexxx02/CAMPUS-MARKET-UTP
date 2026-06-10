@@ -86,3 +86,14 @@ body {
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
+
+/* Hide number input arrows (spinners) */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}

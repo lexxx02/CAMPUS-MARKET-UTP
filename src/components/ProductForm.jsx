@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import { CATEGORIES } from '../data/mockData';
+import useProductStore from '../context/useProductStore';
 
-const emptyForm = { name: '', category: 'snacks', price: '', description: '', image: '', stock: { 'kiosk-1': 0, 'kiosk-2': 0 } };
+const emptyForm = { name: '', category: '', price: '', description: '', image: '', stock: { 'kiosk-1': '', 'kiosk-2': '' } };
 
 const ProductForm = ({ product, onSubmit, onCancel }) => {
+  const { categories } = useProductStore();
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
     if (product) {
       setForm({ name: product.name, category: product.category, price: String(product.price), description: product.description, image: product.image || '', stock: { ...product.stock } });
     } else {
-      setForm(emptyForm);
+      setForm({ ...emptyForm, category: categories.length > 0 ? categories[0].id : '' });
     }
-  }, [product]);
+  }, [product, categories]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,12 +21,23 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   };
 
   const handleStockChange = (kioskId, value) => {
-    setForm(prev => ({ ...prev, stock: { ...prev.stock, [kioskId]: Math.max(0, parseInt(value) || 0) } }));
+    if (value === '') {
+      setForm(prev => ({ ...prev, stock: { ...prev.stock, [kioskId]: '' } }));
+      return;
+    }
+    const num = parseInt(value, 10);
+    if (!isNaN(num) && num >= 0) {
+      setForm(prev => ({ ...prev, stock: { ...prev.stock, [kioskId]: num } }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...form, price: parseFloat(form.price) || 0 });
+    const cleanStock = {
+      'kiosk-1': parseInt(form.stock['kiosk-1']) || 0,
+      'kiosk-2': parseInt(form.stock['kiosk-2']) || 0
+    };
+    onSubmit({ ...form, price: parseFloat(form.price) || 0, stock: cleanStock });
   };
 
   const inputClass = "w-full px-4 py-2.5 bg-brand-surface border border-brand-border rounded-xl text-white text-sm placeholder-brand-gray-600 focus:outline-none focus:border-brand-red/50 focus:ring-1 focus:ring-brand-red/20 transition-all";
@@ -41,7 +53,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         <div>
           <label className={labelClass}>Categoría</label>
           <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
-            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div>

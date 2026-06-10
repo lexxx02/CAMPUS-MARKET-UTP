@@ -1,155 +1,221 @@
 // ============================================================
-// Product Service – Simulated API with mock data
+// Product Service — Conectado al backend Spring Boot real
+// ============================================================
+// Todas las operaciones usan JWT Bearer token para autenticación.
+// Los datos se mapean del formato backend al formato frontend.
 // ============================================================
 
-import { PRODUCTS, CATEGORIES, KIOSKS, SALES_DATA } from '../data/mockData';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-// Simulate network delay
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
+// ─── Helper: Headers con JWT ────────────────────────────────
+const headers = () => ({
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${localStorage.getItem('cm_token')}`,
+});
 
-// In-memory product store (mutable copy)
-let products = [...PRODUCTS.map(p => ({ ...p, stock: { ...p.stock } }))];
-let nextId = Math.max(...products.map(p => p.id)) + 1;
+// ─── Helper: Manejo de respuesta ────────────────────────────
+const handle = async (res) => {
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `Error HTTP ${res.status}`);
+  }
+  // DELETE retorna 204 sin body
+  if (res.status === 204) return { success: true };
+  return res.json();
+};
 
-// ─── Products ─────────────────────────────────────────────
+// ─── Mapeo: Backend DTO → Formato Frontend ──────────────────
+const mapProduct = (p) => ({
+  id: p.id,
+  name: p.name,
+  description: p.description || '',
+  price: parseFloat(p.price) || 0,
+  image: p.image || '',
+  category: p.categoryId,
+  categoryName: p.categoryName || '',
+  categoryIcon: p.categoryIcon || '',
+  active: p.active,
+  stock: {
+    'kiosk-1': p.stockPiso2 || 0,
+    'kiosk-2': p.stockPiso7 || 0,
+  },
+  stockPiso2: p.stockPiso2 || 0,
+  stockPiso7: p.stockPiso7 || 0,
+});
+
+// ─── Mapeo: Frontend Form → Backend DTO ─────────────────────
+const mapProductToBackend = (data) => ({
+  name: data.name,
+  description: data.description || '',
+  price: data.price,
+  stockPiso2: data.stock?.['kiosk-1'] ?? data.stockPiso2 ?? 0,
+  stockPiso7: data.stock?.['kiosk-2'] ?? data.stockPiso7 ?? 0,
+  image: data.image || '',
+  categoryId: data.category || data.categoryId,
+});
+
+// ─── Mapeo: Backend Category → Frontend ─────────────────────
+const mapCategory = (c) => ({
+  id: c.id,
+  name: c.name,
+  icon: c.icon || '',
+  active: c.active,
+});
+
+// ─── Mapeo: Backend Kiosk → Frontend ────────────────────────
+const mapKiosk = (k) => ({
+  id: k.id === 1 ? 'kiosk-1' : k.id === 2 ? 'kiosk-2' : `kiosk-${k.id}`,
+  name: k.name,
+  floor: parseInt(k.floor?.replace(/\D/g, '')) || k.id,
+  location: k.location,
+});
+
+// ════════════════════════════════════════════════════════════
+// PRODUCTOS
+// ════════════════════════════════════════════════════════════
 
 export const getProducts = async () => {
-  await delay();
-  return [...products.map(p => ({ ...p, stock: { ...p.stock } }))];
+  const data = await fetch(`${API_URL}/products`, { headers: headers() }).then(handle);
+  return data.map(mapProduct);
 };
 
 export const getProductById = async (id) => {
-  await delay(200);
-  const product = products.find(p => p.id === Number(id));
-  if (!product) throw new Error('Producto no encontrado');
-  return { ...product, stock: { ...product.stock } };
-};
-
-export const getProductsByKiosk = async (kioskId) => {
-  await delay();
-  return products
-    .filter(p => (p.stock[kioskId] || 0) > 0)
-    .map(p => ({
-      ...p,
-      stock: { ...p.stock },
-      kioskStock: p.stock[kioskId] || 0,
-    }));
-};
-
-export const getProductsByCategory = async (categoryId) => {
-  await delay();
-  return products
-    .filter(p => p.category === categoryId)
-    .map(p => ({ ...p, stock: { ...p.stock } }));
-};
-
-export const searchProducts = async (query) => {
-  await delay(200);
-  const lower = query.toLowerCase();
-  return products
-    .filter(p =>
-      p.name.toLowerCase().includes(lower) ||
-      p.description.toLowerCase().includes(lower) ||
-      p.category.toLowerCase().includes(lower)
-    )
-    .map(p => ({ ...p, stock: { ...p.stock } }));
+  const data = await fetch(`${API_URL}/products/${id}`, { headers: headers() }).then(handle);
+  return mapProduct(data);
 };
 
 export const createProduct = async (productData) => {
-  await delay(400);
-  const newProduct = {
-    ...productData,
-    id: nextId++,
-    stock: productData.stock || { 'kiosk-1': 0, 'kiosk-2': 0 },
-    popular: false,
-    salesCount: 0,
-  };
-  products.push(newProduct);
-  return { ...newProduct, stock: { ...newProduct.stock } };
+  const data = await fetch(`${API_URL}/products`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(mapProductToBackend(productData)),
+  }).then(handle);
+  return mapProduct(data);
 };
 
-export const updateProduct = async (id, updates) => {
-  await delay(400);
-  const index = products.findIndex(p => p.id === Number(id));
-  if (index === -1) throw new Error('Producto no encontrado');
-  products[index] = {
-    ...products[index],
-    ...updates,
-    id: products[index].id,
-    stock: updates.stock
-      ? { ...updates.stock }
-      : { ...products[index].stock },
-  };
-  return { ...products[index], stock: { ...products[index].stock } };
+export const updateProduct = async (id, productData) => {
+  const data = await fetch(`${API_URL}/products/${id}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify(mapProductToBackend(productData)),
+  }).then(handle);
+  return mapProduct(data);
 };
 
 export const deleteProduct = async (id) => {
-  await delay(300);
-  const index = products.findIndex(p => p.id === Number(id));
-  if (index === -1) throw new Error('Producto no encontrado');
-  products.splice(index, 1);
-  return { success: true };
+  return fetch(`${API_URL}/products/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  }).then(handle);
 };
 
-// ─── Categories ───────────────────────────────────────────
+export const searchProducts = async (query) => {
+  const data = await fetch(`${API_URL}/products/search?q=${encodeURIComponent(query)}`, {
+    headers: headers(),
+  }).then(handle);
+  return data.map(mapProduct);
+};
+
+// ════════════════════════════════════════════════════════════
+// CATEGORÍAS
+// ════════════════════════════════════════════════════════════
 
 export const getCategories = async () => {
-  await delay(100);
-  return [...CATEGORIES];
+  const data = await fetch(`${API_URL}/categories`, { headers: headers() }).then(handle);
+  return data.map(mapCategory);
 };
 
-// ─── Kiosks ───────────────────────────────────────────────
+export const createCategory = async (categoryData) => {
+  const data = await fetch(`${API_URL}/categories`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(categoryData),
+  }).then(handle);
+  return mapCategory(data);
+};
+
+export const updateCategory = async (id, categoryData) => {
+  const data = await fetch(`${API_URL}/categories/${id}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify(categoryData),
+  }).then(handle);
+  return mapCategory(data);
+};
+
+export const deleteCategory = async (id) => {
+  return fetch(`${API_URL}/categories/${id}`, {
+    method: 'DELETE',
+    headers: headers(),
+  }).then(handle);
+};
+
+// ════════════════════════════════════════════════════════════
+// KIOSCOS
+// ════════════════════════════════════════════════════════════
 
 export const getKiosks = async () => {
-  await delay(100);
-  return [...KIOSKS];
+  const data = await fetch(`${API_URL}/kiosks`, { headers: headers() }).then(handle);
+  return data.map(mapKiosk);
 };
 
-// ─── Dashboard Stats ──────────────────────────────────────
+export const updateKioskStock = async (kiosk, productId, cantidad) => {
+  // kiosk viene como "kiosk-1" o "kiosk-2", convertir a "piso2" o "piso7"
+  const kioskParam = kiosk === 'kiosk-1' ? 'piso2' : 'piso7';
+  const data = await fetch(`${API_URL}/kiosks/${kioskParam}/products/${productId}/stock`, {
+    method: 'PATCH',
+    headers: headers(),
+    body: JSON.stringify({ cantidad }),
+  }).then(handle);
+  return mapProduct(data);
+};
+
+// ════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════
 
 export const getDashboardStats = async () => {
-  await delay(300);
-
-  const totalProducts = products.length;
-  let available = 0;
-  let lowStock = 0;
-  let outOfStock = 0;
-
-  products.forEach(p => {
-    const totalStock = Object.values(p.stock).reduce((a, b) => a + b, 0);
-    if (totalStock === 0) outOfStock++;
-    else if (totalStock < 5) lowStock++;
-    else available++;
-  });
-
-  const totalStockUnits = products.reduce(
-    (sum, p) => sum + Object.values(p.stock).reduce((a, b) => a + b, 0),
-    0
-  );
-
+  const data = await fetch(`${API_URL}/products/dashboard`, { headers: headers() }).then(handle);
   return {
-    totalProducts,
-    available,
-    lowStock,
-    outOfStock,
-    totalStockUnits,
-    salesData: SALES_DATA,
-    criticalProducts: products
-      .filter(p => {
-        const total = Object.values(p.stock).reduce((a, b) => a + b, 0);
-        return total < 5;
-      })
-      .map(p => ({
-        ...p,
-        totalStock: Object.values(p.stock).reduce((a, b) => a + b, 0),
-      })),
+    totalProducts: data.totalProductos,
+    available: data.disponibles,
+    lowStock: data.bajoStock,
+    outOfStock: data.agotados,
+    totalStockUnits: data.totalUnidades,
+    criticalProducts: (data.stockCritico || []).map(mapProduct),
   };
 };
 
-// ─── Stock helpers ────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// REPORTES (descarga Excel)
+// ════════════════════════════════════════════════════════════
+
+export const downloadReport = async (type) => {
+  const res = await fetch(`${API_URL}/reports/${type}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('cm_token')}`,
+    },
+  });
+  if (!res.ok) throw new Error('Error al generar reporte');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reporte_${type.replace('/', '_')}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// ════════════════════════════════════════════════════════════
+// HELPER: Stock Status (usado por StockBadge)
+// ════════════════════════════════════════════════════════════
 
 export const getStockStatus = (stock, kioskId) => {
-  const qty = kioskId ? (stock[kioskId] || 0) : Object.values(stock).reduce((a, b) => a + b, 0);
+  const qty = kioskId
+    ? (stock[kioskId] || 0)
+    : Object.values(stock).reduce((a, b) => a + b, 0);
   if (qty === 0) return { label: 'Agotado', type: 'out', color: 'brand-danger' };
   if (qty < 5) return { label: 'Bajo stock', type: 'low', color: 'brand-warning' };
   return { label: 'Disponible', type: 'available', color: 'brand-success' };

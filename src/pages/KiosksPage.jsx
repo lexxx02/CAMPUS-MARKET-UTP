@@ -3,13 +3,12 @@ import { motion } from 'framer-motion';
 import { MapPin, Package, AlertTriangle, XCircle } from 'lucide-react';
 import useProductStore from '../context/useProductStore';
 import StockBadge from '../components/StockBadge';
-import { CATEGORIES } from '../data/mockData';
 
 const KiosksPage = () => {
-  const { products, kiosks, isLoading, fetchProducts, fetchKiosks } = useProductStore();
+  const { products, categories, kiosks, isLoading, fetchProducts, fetchCategories, fetchKiosks } = useProductStore();
   const [selectedKiosk, setSelectedKiosk] = useState('kiosk-1');
 
-  useEffect(() => { fetchProducts(); fetchKiosks(); }, []);
+  useEffect(() => { fetchProducts(); fetchCategories(); fetchKiosks(); }, []);
 
   const kioskProducts = products.map(p => ({
     ...p,
@@ -71,7 +70,7 @@ const KiosksPage = () => {
         </div>
         <div className="divide-y divide-brand-border/50">
           {kioskProducts.sort((a, b) => a.kioskStock - b.kioskStock).map(p => {
-            const cat = CATEGORIES.find(c => c.id === p.category);
+            const cat = categories.find(c => c.id === p.category);
             return (
               <motion.div key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="flex items-center justify-between px-4 py-3 hover:bg-brand-surface/50 transition-colors">
@@ -79,7 +78,7 @@ const KiosksPage = () => {
                   <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
                   <div>
                     <p className="text-sm text-white font-medium">{p.name}</p>
-                    <p className="text-[10px] text-brand-gray-500">{cat?.icon} {cat?.name} · S/ {p.price.toFixed(2)}</p>
+                    <p className="text-[10px] text-brand-gray-500">{cat?.name} · S/ {p.price.toFixed(2)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 // ============================================================
-// Product Store – Zustand
+// Product Store – Zustand (conectado al backend real)
 // ============================================================
 
 import { create } from 'zustand';
@@ -58,7 +58,7 @@ const useProductStore = create((set, get) => ({
     }
   },
 
-  // ─── CRUD ─────────────────────────────────────────
+  // ─── CRUD Productos ───────────────────────────────
   createProduct: async (data) => {
     try {
       const newProduct = await productService.createProduct(data);
@@ -83,11 +83,61 @@ const useProductStore = create((set, get) => ({
     }
   },
 
+  updateKioskStock: async (kiosk, productId, cantidad) => {
+    try {
+      const updated = await productService.updateKioskStock(kiosk, productId, cantidad);
+      set(state => ({
+        products: state.products.map(p => (p.id === Number(productId) ? updated : p)),
+      }));
+      return updated;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
   deleteProduct: async (id) => {
     try {
       await productService.deleteProduct(id);
       set(state => ({
         products: state.products.filter(p => p.id !== Number(id)),
+      }));
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  // ─── CRUD Categorías ──────────────────────────────
+  createCategory: async (data) => {
+    try {
+      const newCat = await productService.createCategory(data);
+      set(state => ({ categories: [...state.categories, newCat] }));
+      return newCat;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  updateCategory: async (id, data) => {
+    try {
+      const updated = await productService.updateCategory(id, data);
+      set(state => ({
+        categories: state.categories.map(c => (c.id === Number(id) ? updated : c)),
+      }));
+      return updated;
+    } catch (err) {
+      set({ error: err.message });
+      throw err;
+    }
+  },
+
+  deleteCategory: async (id) => {
+    try {
+      await productService.deleteCategory(id);
+      set(state => ({
+        categories: state.categories.filter(c => c.id !== Number(id)),
       }));
     } catch (err) {
       set({ error: err.message });
@@ -109,8 +159,8 @@ const useProductStore = create((set, get) => ({
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
         p =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q)
       );
     }
 

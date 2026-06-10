@@ -1,48 +1,58 @@
 // ============================================================
-// Auth Service – Simulated authentication
+// Auth Service — Conectado al backend Spring Boot real
 // ============================================================
 
-import { ADMIN_CREDENTIALS } from '../data/mockData';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
-
-export const loginAdmin = async (username, password) => {
-  await delay();
-  if (
-    username === ADMIN_CREDENTIALS.username &&
-    password === ADMIN_CREDENTIALS.password
-  ) {
-    const token = 'mock-jwt-token-' + Date.now();
-    const user = {
-      id: 1,
-      username: 'admin',
-      name: 'Administrador UTP',
-      role: 'admin',
-      avatar: null,
-    };
-    localStorage.setItem('cm_token', token);
-    localStorage.setItem('cm_user', JSON.stringify(user));
-    return { token, user };
+/**
+ * Autentica un usuario con correo y contraseña contra el backend real.
+ * Almacena el JWT token en localStorage.
+ */
+export const login = async (correo, contrasena) => {
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ correo, contrasena }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Credenciales incorrectas');
   }
-  throw new Error('Credenciales inválidas. Intente nuevamente.');
+  const data = await res.json();
+  localStorage.setItem('cm_token', data.token);
+  localStorage.setItem('cm_user', JSON.stringify({
+    rol: data.rol,
+    nombre: data.nombre,
+    idUsuario: data.idUsuario,
+  }));
+  return data;
 };
 
-export const logoutAdmin = async () => {
-  await delay(200);
+/**
+ * Cierra sesión eliminando token y datos del usuario.
+ */
+export const logout = () => {
   localStorage.removeItem('cm_token');
   localStorage.removeItem('cm_user');
-  return { success: true };
 };
 
-export const getStoredAuth = () => {
-  const token = localStorage.getItem('cm_token');
-  const user = localStorage.getItem('cm_user');
-  if (token && user) {
-    return { token, user: JSON.parse(user) };
+/**
+ * Retorna el JWT token almacenado.
+ */
+export const getToken = () => localStorage.getItem('cm_token');
+
+/**
+ * Retorna los datos del usuario almacenados.
+ */
+export const getUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('cm_user') || 'null');
+  } catch {
+    return null;
   }
-  return null;
 };
 
-export const isAuthenticated = () => {
-  return !!localStorage.getItem('cm_token');
-};
+/**
+ * Verifica si hay un token de sesión activo.
+ */
+export const isAuthenticated = () => !!getToken();

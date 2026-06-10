@@ -1,35 +1,48 @@
 // ============================================================
-// Auth Store – Zustand
+// Auth Store – Zustand (conectado al backend real)
 // ============================================================
 
 import { create } from 'zustand';
-import { loginAdmin, logoutAdmin, getStoredAuth } from '../services/authService';
+import * as authService from '../services/authService';
 
 const useAuthStore = create((set) => {
-  // Initialize from localStorage
-  const stored = getStoredAuth();
+  // Inicializar desde localStorage
+  const user = authService.getUser();
+  const token = authService.getToken();
 
   return {
-    user: stored?.user || null,
-    token: stored?.token || null,
-    isAuthenticated: !!stored,
+    user: user || null,
+    token: token || null,
+    isAuthenticated: authService.isAuthenticated(),
     isLoading: false,
     error: null,
 
-    login: async (username, password) => {
+    /**
+     * Login: autentica contra el backend real con JWT.
+     * Retorna los datos del usuario si el login es exitoso.
+     */
+    login: async (correo, contrasena) => {
       set({ isLoading: true, error: null });
       try {
-        const { token, user } = await loginAdmin(username, password);
-        set({ user, token, isAuthenticated: true, isLoading: false });
-        return true;
+        const data = await authService.login(correo, contrasena);
+        set({
+          user: { rol: data.rol, nombre: data.nombre, idUsuario: data.idUsuario },
+          token: data.token,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        return data;
       } catch (err) {
         set({ error: err.message, isLoading: false });
-        return false;
+        return null;
       }
     },
 
-    logout: async () => {
-      await logoutAdmin();
+    /**
+     * Logout: elimina token y datos del localStorage.
+     */
+    logout: () => {
+      authService.logout();
       set({ user: null, token: null, isAuthenticated: false });
     },
 

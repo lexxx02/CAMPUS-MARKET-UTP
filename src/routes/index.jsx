@@ -5,7 +5,8 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProductsPage from '../pages/ProductsPage';
-import KiosksPage from '../pages/KiosksPage';
+import ReportsPage from '../pages/ReportsPage';
+import CategoriesPage from '../pages/CategoriesPage';
 import ProtectedRoute from './ProtectedRoute';
 
 const router = createBrowserRouter([
@@ -30,7 +31,8 @@ const router = createBrowserRouter([
     children: [
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'products', element: <ProductsPage /> },
-      { path: 'kiosks', element: <KiosksPage /> },
+      { path: 'categories', element: <CategoriesPage /> },
+      { path: 'reports', element: <ReportsPage /> },
     ],
   },
 ]);

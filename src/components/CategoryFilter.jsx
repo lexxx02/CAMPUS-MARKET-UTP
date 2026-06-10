@@ -25,7 +25,6 @@ const CategoryFilter = ({ categories, selected, onSelect }) => {
               : 'bg-brand-surface text-brand-gray-400 border-brand-border hover:border-brand-red/30 hover:text-white'
           }`}
         >
-          <span>{cat.icon}</span>
           {cat.name}
         </motion.button>
       ))}
