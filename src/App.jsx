@@ -10,9 +10,9 @@ const App = () => {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#1A1A1A',
-            color: '#FAFAFA',
-            border: '1px solid #2A2A2A',
+            background: '#FFFFFF',
+            color: '#111111',
+            border: '1px solid #E9ECEF',
             borderRadius: '12px',
             fontSize: '14px',
           },

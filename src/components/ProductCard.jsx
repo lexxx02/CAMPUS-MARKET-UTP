@@ -1,90 +1,76 @@
 import { motion } from 'framer-motion';
 import StockBadge from './StockBadge';
 import useProductStore from '../context/useProductStore';
-import { Store } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 const ProductCard = ({ product, index = 0 }) => {
   const { categories } = useProductStore();
   const category = categories.find(c => c.id === product.category);
 
+
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.05 }}
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className="group bg-gradient-to-b from-brand-surface to-brand-black rounded-[24px] overflow-hidden border border-white/5 hover:border-brand-red/40 transition-all duration-300 shadow-xl hover:shadow-brand-red/10 relative flex flex-col h-full"
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.4, delay: index * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className="bg-white rounded-[24px] p-2 sm:p-3 shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow"
     >
-      {/* Background Glow on Hover */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-brand-red/0 via-brand-red/0 to-brand-red/0 group-hover:from-brand-red/5 group-hover:to-transparent transition-colors duration-500 pointer-events-none" />
-
-      {/* Image Container */}
-      <div className="relative h-48 shrink-0 overflow-hidden rounded-t-[24px]">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
-          loading="lazy" 
+      {/* ── Top Half: Image Area ── */}
+      <div className="relative h-[160px] sm:h-[200px] w-full bg-[#F5F5F7] rounded-2xl flex items-center justify-center p-3 sm:p-4 overflow-hidden mb-3 sm:mb-4">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-contain mix-blend-multiply drop-shadow-sm hover:scale-105 transition-transform duration-300"
+          loading="lazy"
         />
-        {/* Gradients to blend image with card */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/40 to-transparent opacity-95" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent opacity-60" />
 
-        {/* Category badge */}
-        <div className="absolute top-3 left-3">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-white/10 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 uppercase tracking-wider">
-            {category?.name || 'Categoría'}
+        {/* Category chip */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-white text-[10px] font-black text-gray-800 uppercase tracking-widest shadow-sm">
+            {category?.name || 'CATEGORÍA'}
           </span>
         </div>
 
-        {/* Popular badge */}
-        {product.popular && (
-          <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-brand-red text-white text-[10px] font-bold shadow-[0_0_15px_rgba(193,39,45,0.5)] uppercase tracking-wider">
-              🔥 Hot
-            </span>
-          </div>
-        )}
-
-        {/* Title and Price inside the image area (bottom) */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 pb-3">
-          <div className="flex justify-between items-end gap-3">
-            <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 drop-shadow-md group-hover:text-brand-red-light transition-colors">
-              {product.name}
-            </h3>
-            <div className="shrink-0 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl shadow-lg">
-              <span className="text-lg font-black text-brand-red-light drop-shadow-lg">
-                S/ {product.price.toFixed(2)}
-              </span>
-            </div>
-          </div>
+        {/* Global availability badge */}
+        <div className="absolute top-3 right-3 z-10">
+          <StockBadge stock={product.stock} size="xs" theme="light" />
         </div>
+
+
       </div>
 
-      {/* Content */}
-      <div className="p-4 pt-2 space-y-4 relative z-10 flex-1 flex flex-col">
-        <p className="text-brand-gray-400 text-[11px] line-clamp-2 leading-relaxed min-h-[32px]">
-          {product.description || 'Sin descripción detallada.'}
-        </p>
+      {/* ── Bottom Half: Info Area ── */}
+      <div className="px-1 sm:px-2 flex flex-col flex-1 pb-1 sm:pb-2">
+        {/* Name */}
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight mb-3 sm:mb-4 line-clamp-2">
+          {product.name}
+        </h3>
 
-        {/* Divider */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-border to-transparent opacity-50 my-auto" />
+        <div className="flex-1" />
 
         {/* Stock per kiosk */}
-        <div className="space-y-2 mt-auto pt-2">
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-colors">
-            <div className="flex items-center gap-2">
-              <Store className="w-3.5 h-3.5 text-brand-gray-500" />
-              <span className="text-xs text-brand-gray-300 font-medium">Piso 2</span>
+        <div className="space-y-2 sm:space-y-2.5">
+          <div className="flex items-center justify-between group gap-1">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
+              <span className="text-[11px] sm:text-xs font-bold text-gray-700 whitespace-nowrap">Kiosko 1</span>
             </div>
-            <StockBadge stock={product.stock} kioskId="kiosk-1" size="xs" />
+            <div className="scale-[0.85] origin-right sm:scale-100">
+              <StockBadge stock={product.stock} kioskId="kiosk-1" size="xs" theme="light" />
+            </div>
           </div>
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-colors">
-            <div className="flex items-center gap-2">
-              <Store className="w-3.5 h-3.5 text-brand-gray-500" />
-              <span className="text-xs text-brand-gray-300 font-medium">Piso 7</span>
+          <div className="w-full border-t border-gray-100" />
+          <div className="flex items-center justify-between group gap-1">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
+              <span className="text-[11px] sm:text-xs font-bold text-gray-700 whitespace-nowrap">Kiosko 2</span>
             </div>
-            <StockBadge stock={product.stock} kioskId="kiosk-2" size="xs" />
+            <div className="scale-[0.85] origin-right sm:scale-100">
+              <StockBadge stock={product.stock} kioskId="kiosk-2" size="xs" theme="light" />
+            </div>
           </div>
         </div>
       </div>

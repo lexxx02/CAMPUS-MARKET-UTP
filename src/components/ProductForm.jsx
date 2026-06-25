@@ -40,8 +40,8 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     onSubmit({ ...form, price: parseFloat(form.price) || 0, stock: cleanStock });
   };
 
-  const inputClass = "w-full px-4 py-2.5 bg-brand-surface border border-brand-border rounded-xl text-white text-sm placeholder-brand-gray-600 focus:outline-none focus:border-brand-red/50 focus:ring-1 focus:ring-brand-red/20 transition-all";
-  const labelClass = "block text-xs font-medium text-brand-gray-400 mb-1.5 uppercase tracking-wider";
+  const inputClass = "admin-form-input w-full px-4 py-2.5 rounded-xl text-[#1a1a2e] text-sm placeholder-[#b0b0c0] focus:outline-none transition-all";
+  const labelClass = "block text-xs font-semibold text-[#7a7a8a] mb-1.5 uppercase tracking-wider";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,18 +73,18 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         <label className={labelClass}>Stock por Kiosco</label>
         <div className="grid grid-cols-2 gap-4 mt-1">
           <div>
-            <span className="text-xs text-brand-gray-500">📍 Piso 2</span>
+            <span className="text-xs text-[#9a9ab0] font-medium">📍 Piso 2</span>
             <input type="number" min="0" value={form.stock['kiosk-1']} onChange={e => handleStockChange('kiosk-1', e.target.value)} className={inputClass} />
           </div>
           <div>
-            <span className="text-xs text-brand-gray-500">📍 Piso 7</span>
+            <span className="text-xs text-[#9a9ab0] font-medium">📍 Piso 7</span>
             <input type="number" min="0" value={form.stock['kiosk-2']} onChange={e => handleStockChange('kiosk-2', e.target.value)} className={inputClass} />
           </div>
         </div>
       </div>
       <div className="flex gap-3 pt-3">
-        <button type="button" onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-brand-border text-brand-gray-400 hover:text-white hover:border-brand-red/30 transition-all text-sm font-medium">Cancelar</button>
-        <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-brand-red text-white font-semibold text-sm hover:bg-brand-red-light transition-colors shadow-red">{product ? 'Actualizar' : 'Crear Producto'}</button>
+        <button type="button" onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-[#e0e0ea]/60 text-[#7a7a8a] hover:text-[#D72638] hover:border-[#D72638]/30 transition-all text-sm font-semibold">Cancelar</button>
+        <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-b from-[#E8363D] to-[#D72638] text-white font-semibold text-sm hover:shadow-[0_4px_20px_rgba(215,38,56,0.3)] transition-all">{product ? 'Actualizar' : 'Crear Producto'}</button>
       </div>
     </form>
   );

@@ -1,9 +1,11 @@
 // ============================================================
-// Skeleton Loading Component
+// Skeleton Loading Component — Glassmorphism Theme
 // ============================================================
 
-const Skeleton = ({ className = '', variant = 'rect' }) => {
-  const base = 'shimmer rounded-lg animate-pulse';
+const Skeleton = ({ className = '', variant = 'rect', theme = 'light' }) => {
+  const base = theme === 'dark' 
+    ? 'bg-[#2A2A2A] rounded-lg animate-pulse' 
+    : 'shimmer-light rounded-lg';
 
   if (variant === 'circle') {
     return <div className={`${base} rounded-full ${className}`} />;
@@ -16,24 +18,43 @@ const Skeleton = ({ className = '', variant = 'rect' }) => {
   return <div className={`${base} ${className}`} />;
 };
 
-// Card skeleton for product loading
+// Card skeleton matching the split theme ProductCard layout
 export const ProductCardSkeleton = () => (
-  <div className="bg-brand-card rounded-2xl overflow-hidden border border-brand-border">
-    <Skeleton className="h-48 w-full rounded-none" />
-    <div className="p-4 space-y-3">
-      <Skeleton variant="text" className="w-3/4" />
-      <Skeleton variant="text" className="w-1/2 h-3" />
-      <div className="flex justify-between items-center pt-2">
-        <Skeleton variant="text" className="w-16 h-6" />
-        <Skeleton variant="text" className="w-20 h-5" />
+  <div className="rounded-[28px] overflow-hidden bg-[#111111] border border-[#222222] flex flex-col h-full">
+    {/* Top Half: Light Image Area */}
+    <div className="h-[220px] bg-[#F5F5F7] flex items-center justify-center p-6 relative">
+      <div className="w-full h-full shimmer-light rounded-xl opacity-50" />
+      {/* Category chip placeholder */}
+      <div className="absolute top-4 left-4 w-16 h-7 rounded-xl shimmer-light opacity-70" />
+      {/* Badge placeholder */}
+      <div className="absolute top-4 right-4 w-20 h-7 rounded-full shimmer-light opacity-70" />
+    </div>
+
+    {/* Bottom Half: Dark Content Area */}
+    <div className="p-5 flex-1 flex flex-col gap-3">
+      <Skeleton variant="text" theme="dark" className="w-3/4 h-6" />
+      <Skeleton variant="text" theme="dark" className="w-1/2 h-3" />
+      
+      <div className="flex-1 min-h-[4px]" />
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[#333333] to-transparent my-1" />
+      
+      <div className="space-y-2 pt-1">
+        <div className="flex justify-between items-center py-2 px-3.5 rounded-2xl bg-[#1A1A1A] border border-[#222222]">
+          <Skeleton variant="text" theme="dark" className="w-16 h-3" />
+          <Skeleton variant="text" theme="dark" className="w-14 h-5 rounded-full" />
+        </div>
+        <div className="flex justify-between items-center py-2 px-3.5 rounded-2xl bg-[#1A1A1A] border border-[#222222]">
+          <Skeleton variant="text" theme="dark" className="w-16 h-3" />
+          <Skeleton variant="text" theme="dark" className="w-14 h-5 rounded-full" />
+        </div>
       </div>
     </div>
   </div>
 );
 
-// Dashboard stat skeleton
+// Dashboard stat skeleton (admin — glass theme)
 export const StatCardSkeleton = () => (
-  <div className="bg-brand-card rounded-2xl p-6 border border-brand-border">
+  <div className="admin-glass-card rounded-[24px] p-7">
     <div className="flex justify-between items-start">
       <div className="space-y-3 flex-1">
         <Skeleton variant="text" className="w-24 h-3" />

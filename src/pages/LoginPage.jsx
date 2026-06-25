@@ -1,14 +1,161 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, Mail, Home, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff, Lock, Mail, Home, ArrowRight, Shield } from 'lucide-react';
 import useAuthStore from '../context/useAuthStore';
 import UTPLogo from '../components/UTPLogo';
 
+// ============================================================
+// Animated Background Canvas – Flowing data lines & light waves
+// ============================================================
+const AnimatedBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationId;
+    let particles = [];
+    let flowLines = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Create flowing light particles
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.3 + 0.1;
+        const colors = [
+          'rgba(215, 38, 56, ',    // UTP Red
+          'rgba(30, 100, 255, ',    // Electric Blue
+          'rgba(212, 175, 55, ',    // Gold
+        ];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.life = Math.random() * 200 + 100;
+        this.maxLife = this.life;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life--;
+        if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+          this.reset();
+        }
+      }
+      draw() {
+        const fadeRatio = this.life / this.maxLife;
+        const alpha = this.opacity * fadeRatio;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color + alpha + ')';
+        ctx.fill();
+      }
+    }
+
+    // Create flowing sine wave lines
+    class FlowLine {
+      constructor(index, total) {
+        this.index = index;
+        this.total = total;
+        const palette = [
+          { r: 215, g: 38, b: 56 },   // UTP Red
+          { r: 30, g: 100, b: 255 },   // Electric Blue
+          { r: 212, g: 175, b: 55 },   // Gold
+          { r: 180, g: 50, b: 80 },    // Deep rose
+          { r: 70, g: 130, b: 255 },   // Lighter blue
+        ];
+        this.color = palette[index % palette.length];
+        this.baseY = (canvas.height * 0.3) + (index / total) * (canvas.height * 0.4);
+        this.amplitude = 30 + Math.random() * 50;
+        this.frequency = 0.002 + Math.random() * 0.003;
+        this.speed = 0.005 + Math.random() * 0.01;
+        this.phase = Math.random() * Math.PI * 2;
+        this.lineWidth = 1 + Math.random() * 1.5;
+        this.opacity = 0.08 + Math.random() * 0.12;
+      }
+      draw(time) {
+        ctx.beginPath();
+        ctx.lineWidth = this.lineWidth;
+
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        const { r, g, b } = this.color;
+        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0)`);
+        gradient.addColorStop(0.2, `rgba(${r}, ${g}, ${b}, ${this.opacity})`);
+        gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${this.opacity * 1.5})`);
+        gradient.addColorStop(0.8, `rgba(${r}, ${g}, ${b}, ${this.opacity})`);
+        gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+        ctx.strokeStyle = gradient;
+
+        for (let x = 0; x < canvas.width; x += 2) {
+          const y = this.baseY +
+            Math.sin(x * this.frequency + time * this.speed + this.phase) * this.amplitude +
+            Math.sin(x * this.frequency * 2.5 + time * this.speed * 1.3) * (this.amplitude * 0.3);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    // Initialize
+    for (let i = 0; i < 60; i++) particles.push(new Particle());
+    for (let i = 0; i < 8; i++) flowLines.push(new FlowLine(i, 8));
+
+    let time = 0;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw flow lines
+      flowLines.forEach(line => line.draw(time));
+
+      // Draw particles
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      time++;
+      animationId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-0"
+      style={{ opacity: 0.9 }}
+    />
+  );
+};
+
+// ============================================================
+// LoginPage – Premium Glassmorphism Redesign
+// ============================================================
 const LoginPage = () => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [showPass, setShowPass] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
   const { login, isLoading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
 
@@ -21,107 +168,199 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-red/10 via-[#0A0A0A] to-[#0A0A0A]" />
-      <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-brand-red/20 rounded-full blur-[150px] mix-blend-screen opacity-50 animate-pulse" />
-      <div className="absolute bottom-1/4 -right-32 w-[600px] h-[600px] bg-[#FF3D71]/10 rounded-full blur-[150px] mix-blend-screen opacity-50" />
-      
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+    <div className="login-premium-page min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      {/* Luminous White Base Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f8f9ff] via-[#ffffff] to-[#f5f0eb] z-0" />
 
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} className="w-full max-w-md relative z-10">
-        
-        {/* Main Card */}
-        <div className="bg-white/[0.02] backdrop-blur-2xl rounded-[32px] p-8 sm:p-10 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative overflow-hidden">
-          {/* Top Edge Glow */}
-          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-brand-red to-transparent opacity-50" />
+      {/* Soft ambient light blobs */}
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(215,38,56,0.06)_0%,transparent_70%)] z-0" />
+      <div className="absolute bottom-[-15%] right-[-10%] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(30,100,255,0.05)_0%,transparent_70%)] z-0" />
+      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(212,175,55,0.04)_0%,transparent_70%)] z-0" />
 
-          {/* Logo & Header */}
-          <div className="text-center space-y-6 mb-8">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }} className="flex justify-center bg-white p-3 rounded-2xl border border-white/20 shadow-xl shadow-brand-red/10 mx-auto w-fit">
-              <UTPLogo size="lg" />
+      {/* Animated Canvas Background */}
+      <AnimatedBackground />
+
+      {/* Subtle grid overlay */}
+      <div className="absolute inset-0 z-[1] pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }}
+      />
+
+      {/* Main Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-[440px] relative z-10"
+      >
+        {/* Glass Card Container */}
+        <div className="login-glass-card relative rounded-[28px] p-8 sm:p-10 overflow-hidden">
+          {/* Chromatic refraction edge – top */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] login-chromatic-edge" />
+          {/* Chromatic refraction edge – left */}
+          <div className="absolute top-0 left-0 bottom-0 w-[2px] login-chromatic-edge-vertical" />
+          {/* Chromatic refraction edge – right */}
+          <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-white/40 via-white/10 to-transparent" />
+          {/* Bottom subtle reflection */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          {/* Inner light reflection overlay */}
+          <div className="absolute top-0 left-0 right-0 h-[40%] bg-gradient-to-b from-white/[0.12] to-transparent pointer-events-none rounded-t-[28px]" />
+
+          {/* ===== LOGO SECTION ===== */}
+          <div className="text-center space-y-5 mb-8 relative z-10">
+            <motion.div
+              initial={{ scale: 0, rotateY: -180 }}
+              animate={{ scale: 1, rotateY: 0 }}
+              transition={{ delay: 0.3, duration: 0.8, type: "spring", stiffness: 120 }}
+              className="relative mx-auto w-fit"
+            >
+              {/* 3D Metallic logo container */}
+              <div className="login-logo-container relative bg-white rounded-2xl p-4 shadow-[0_8px_32px_rgba(215,38,56,0.15),0_2px_8px_rgba(0,0,0,0.08)]">
+                {/* Metallic sheen overlay */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white via-gray-50 to-gray-100 opacity-80" />
+                <div className="absolute inset-0 rounded-2xl login-metallic-sheen pointer-events-none" />
+                <div className="relative z-10">
+                  <UTPLogo size="lg" />
+                </div>
+              </div>
             </motion.div>
-            <div>
-              <h1 className="text-3xl font-black text-white tracking-tight mb-2">Campus Market</h1>
-              <p className="text-sm text-brand-gray-400 font-medium">Panel de Administración Segura</p>
-            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              <h1 className="text-[28px] font-extrabold tracking-tight leading-tight">
+                <span className="text-[#2a2a2a]">Campus</span>
+                <span className="login-text-gradient ml-1">Market</span>
+              </h1>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8a8a9a] mt-1.5 flex items-center justify-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#aaa]" />
+                Panel de Administración Segura
+              </p>
+            </motion.div>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-6">
-              <div className="bg-brand-danger/10 border border-brand-danger/30 rounded-2xl px-4 py-3 text-sm text-[#FF6B6B] flex items-center justify-center text-center">
-                {error}
-              </div>
-            </motion.div>
-          )}
+          {/* ===== ERROR MESSAGE ===== */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-2xl px-4 py-3 text-sm text-red-600 flex items-center justify-center text-center font-medium">
+                  {error}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-brand-gray-400 uppercase tracking-widest pl-1">Correo Electrónico</label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-gray-500 group-focus-within:text-brand-red transition-colors" />
-                <input
-                  id="login-correo"
-                  type="text"
-                  value={correo}
-                  onChange={e => { setCorreo(e.target.value); clearError(); }}
-                  placeholder="admin"
-                  className="w-full pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-brand-gray-600 focus:outline-none focus:border-brand-red/50 focus:ring-1 focus:ring-brand-red/50 transition-all focus:bg-black/60"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-brand-gray-400 uppercase tracking-widest pl-1">Contraseña</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-gray-500 group-focus-within:text-brand-red transition-colors" />
-                <input
-                  id="login-contrasena"
-                  type={showPass ? 'text' : 'password'}
-                  value={contrasena}
-                  onChange={e => { setContrasena(e.target.value); clearError(); }}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-4 bg-black/40 border border-white/10 rounded-2xl text-white text-sm placeholder-brand-gray-600 focus:outline-none focus:border-brand-red/50 focus:ring-1 focus:ring-brand-red/50 transition-all focus:bg-black/60"
-                  required
-                />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-gray-500 hover:text-white transition-colors p-1 rounded-md">
-                  {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+          {/* ===== LOGIN FORM ===== */}
+          <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-[#7a7a8a] uppercase tracking-[0.15em] pl-1">
+                Correo Electrónico
+              </label>
+              <div className={`relative group login-input-wrapper ${emailFocused ? 'focused' : ''}`}>
+                <div className={`absolute inset-0 rounded-2xl transition-all duration-500 ${emailFocused ? 'login-input-glow' : ''}`} />
+                <div className="relative flex items-center">
+                  <Mail className={`absolute left-4 w-[18px] h-[18px] transition-colors duration-300 ${emailFocused ? 'text-[#D72638]' : 'text-[#b0b0c0]'}`} />
+                  <input
+                    id="login-correo"
+                    type="text"
+                    value={correo}
+                    onChange={e => { setCorreo(e.target.value); clearError(); }}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                    placeholder="admin"
+                    className="login-input w-full pl-12 pr-4 py-4 rounded-2xl text-[#1a1a2e] text-sm font-medium placeholder-[#c0c0cc] focus:outline-none transition-all"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
-            <button
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-[#7a7a8a] uppercase tracking-[0.15em] pl-1">
+                Contraseña
+              </label>
+              <div className={`relative group login-input-wrapper ${passwordFocused ? 'focused' : ''}`}>
+                <div className={`absolute inset-0 rounded-2xl transition-all duration-500 ${passwordFocused ? 'login-input-glow' : ''}`} />
+                <div className="relative flex items-center">
+                  <Lock className={`absolute left-4 w-[18px] h-[18px] transition-colors duration-300 ${passwordFocused ? 'text-[#D72638]' : 'text-[#b0b0c0]'}`} />
+                  <input
+                    id="login-contrasena"
+                    type={showPass ? 'text' : 'password'}
+                    value={contrasena}
+                    onChange={e => { setContrasena(e.target.value); clearError(); }}
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                    placeholder="••••••••"
+                    className="login-input w-full pl-12 pr-14 py-4 rounded-2xl text-[#1a1a2e] text-sm font-medium placeholder-[#c0c0cc] focus:outline-none transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-4 p-1 rounded-lg text-[#b0b0c0] hover:text-[#D72638] transition-colors duration-200"
+                  >
+                    {showPass ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ===== SUBMIT BUTTON – 3D Volumetric ===== */}
+            <motion.button
               id="login-submit"
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 mt-4 rounded-2xl bg-gradient-to-r from-brand-red to-[#FF3D71] text-white font-black text-sm uppercase tracking-wider hover:shadow-[0_0_20px_rgba(193,39,45,0.4)] hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group"
+              whileHover={{ scale: isLoading ? 1 : 1.02, y: isLoading ? 0 : -2 }}
+              whileTap={{ scale: isLoading ? 1 : 0.98 }}
+              className="login-submit-btn w-full py-4 mt-3 rounded-2xl text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                  Ingresando...
-                </span>
-              ) : (
-                <>
-                  Ingresar al Sistema
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
+              {/* Pulsing inner glow */}
+              <div className="absolute inset-0 login-btn-pulse pointer-events-none" />
+              {/* Satin highlight on top */}
+              <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-2xl pointer-events-none" />
+
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Ingresando...
+                  </span>
+                ) : (
+                  <>
+                    Ingresar al Sistema
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
+                  </>
+                )}
+              </span>
+            </motion.button>
           </form>
 
-          {/* Links & Footer */}
-          <div className="mt-8 pt-6 border-t border-white/10 space-y-4">
-            <Link to="/" className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-white/5 border border-white/5 text-brand-gray-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all text-sm font-bold group">
-              <Home className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
-              Volver al inicio
+          {/* ===== FOOTER ===== */}
+          <div className="mt-8 pt-6 border-t border-[#e0e0ea]/50 space-y-4 relative z-10">
+            <Link
+              to="/"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-[#e0e0ea]/60 text-[#9a9ab0] hover:text-[#D72638] hover:border-[#D72638]/30 hover:bg-[#D72638]/[0.03] transition-all duration-300 text-sm font-bold group login-back-link"
+            >
+              <Home className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-300" />
+              <span className="login-silver-text">Volver al Inicio</span>
             </Link>
-            
-            <p className="text-center text-[10px] uppercase tracking-widest text-brand-gray-600 font-medium">
+
+            <p className="text-center text-[10px] uppercase tracking-[0.2em] font-semibold login-silver-text-subtle">
               Universidad Tecnológica del Perú
             </p>
           </div>

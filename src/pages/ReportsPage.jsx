@@ -52,9 +52,11 @@ const ReportsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Reportes</h1>
-        <p className="text-brand-gray-500 text-sm mt-1">Descarga reportes de inventario en formato Excel (.xlsx)</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1a1a2e]">Reportes</h1>
+          <p className="text-[#9a9ab0] text-sm mt-1 font-medium">Exporta la información de tu inventario a Excel.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -64,22 +66,22 @@ const ReportsPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-brand-card rounded-2xl border border-brand-border p-6 hover:border-brand-red/30 transition-all group"
+            className="admin-glass-card rounded-2xl p-6 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group"
           >
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-brand-red/10 flex items-center justify-center text-2xl flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[#D72638]/[0.08] flex items-center justify-center text-2xl flex-shrink-0">
                 {report.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-white group-hover:text-brand-red-light transition-colors">{report.title}</h3>
-                <p className="text-xs text-brand-gray-500 mt-1 leading-relaxed">{report.description}</p>
+                <h3 className="text-base font-semibold text-[#1a1a2e] group-hover:text-[#D72638] transition-colors">{report.title}</h3>
+                <p className="text-xs text-[#9a9ab0] mt-1 leading-relaxed font-medium">{report.description}</p>
               </div>
             </div>
 
             <button
               onClick={() => handleDownload(report)}
               disabled={loadingId === report.id}
-              className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-brand-surface border border-brand-border text-sm font-medium text-white hover:bg-brand-red hover:border-brand-red hover:shadow-red transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/50 border border-[#e0e0ea]/40 text-sm font-semibold text-[#1a1a2e] hover:bg-gradient-to-b hover:from-[#E8363D] hover:to-[#D72638] hover:text-white hover:border-transparent hover:shadow-[0_4px_20px_rgba(215,38,56,0.25)] transition-all disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
             >
               {loadingId === report.id ? (
                 <>
@@ -98,12 +100,12 @@ const ReportsPage = () => {
       </div>
 
       {/* Info */}
-      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
+      <div className="admin-glass-card rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-2">
-          <FileSpreadsheet className="w-4 h-4 text-brand-red" />
-          <h3 className="text-sm font-semibold text-white">Información</h3>
+          <FileSpreadsheet className="w-4 h-4 text-[#D72638]" />
+          <h3 className="text-sm font-semibold text-[#1a1a2e]">Información</h3>
         </div>
-        <ul className="text-xs text-brand-gray-500 space-y-1">
+        <ul className="text-xs text-[#9a9ab0] space-y-1 font-medium">
           <li>• Los reportes se generan en formato Excel (.xlsx) compatible con Microsoft Excel y Google Sheets.</li>
           <li>• El reporte de stock crítico incluye productos con menos de 5 unidades en cualquier kiosco.</li>
           <li>• Los datos reflejan el estado actual del inventario al momento de la descarga.</li>

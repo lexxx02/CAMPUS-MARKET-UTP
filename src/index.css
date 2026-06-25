@@ -2,29 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Custom Scrollbar ===== */
+/* ===== Custom Scrollbar (Light) ===== */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  background: #F5F5F7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: #D1D1D6;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C1272D;
+  background: #D72638;
 }
 
 /* ===== Global Styles ===== */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #333333 #111111;
+  scrollbar-color: #D1D1D6 #F5F5F7;
 }
 
 html {
@@ -33,33 +33,28 @@ html {
 
 body {
   overflow-x: hidden;
+  background-color: #F5F5F7;
 }
 
-/* ===== Glassmorphism Utilities ===== */
+/* ===== Glassmorphism (Light) ===== */
 .glass {
-  background: rgba(17, 17, 17, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.glass-red {
-  background: rgba(139, 26, 31, 0.3);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(193, 39, 45, 0.15);
+/* ===== Glassmorphism (Dark - Header/Footer) ===== */
+.glass-dark {
+  background: rgba(17, 17, 17, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* ===== Gradient Text ===== */
 .gradient-text {
-  background: linear-gradient(135deg, #C1272D, #E8363D);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-text-light {
-  background: linear-gradient(135deg, #E8363D, #FF4D54);
+  background: linear-gradient(135deg, #D72638, #E8363D);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -69,17 +64,74 @@ body {
 .shimmer {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
+    #2A2A2A 25%,
+    #333333 50%,
+    #2A2A2A 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 2s linear infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* ===== Red Accent Line ===== */
-.red-accent-top {
-  border-top: 3px solid #C1272D;
+.shimmer-light {
+  background: linear-gradient(
+    90deg,
+    #F5F5F7 25%,
+    #E8E8EA 50%,
+    #F5F5F7 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ===== Premium Animated Glow Border for Cards ===== */
+.premium-glow-card {
+  position: relative;
+  background: #111111;
+  border-radius: 28px;
+  z-index: 1;
+}
+
+.premium-glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #D72638, rgba(215,38,56,0.1), #FF4D54, rgba(215,38,56,0.1));
+  background-size: 300% 300%;
+  animation: borderPulse 4s ease infinite;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+.premium-glow-card:hover::before {
+  background: linear-gradient(45deg, #FF4D54, #D72638, #FF4D54, #D72638);
+  animation: borderPulse 2s linear infinite;
+  opacity: 1;
+  filter: blur(4px);
+}
+
+@keyframes borderPulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== Animated Card Background ===== */
+.card-animated-bg {
+  background: linear-gradient(-45deg, #111111, #1e0508, #0a0a0a, #1a0505);
+  background-size: 400% 400%;
+  animation: cardGradient 8s ease infinite;
+}
+
+@keyframes cardGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* ===== Custom Input Styles ===== */
@@ -87,7 +139,6 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
 
-/* Hide number input arrows (spinners) */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
@@ -96,4 +147,521 @@ input[type=number]::-webkit-outer-spin-button {
 
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* ===================================================================
+   LOGIN PAGE – Premium Glassmorphism Styles
+   =================================================================== */
+
+/* --- Page Background --- */
+.login-premium-page {
+  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 40%, #faf8f5 100%);
+}
+
+/* --- Glass Card --- */
+.login-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.55) 40%,
+    rgba(245, 240, 250, 0.50) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 60px rgba(0, 0, 0, 0.06),
+    0 2px 20px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+/* --- Chromatic Refraction Edges (rainbow light prism) --- */
+.login-chromatic-edge {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(215, 38, 56, 0.3) 10%,
+    rgba(255, 120, 50, 0.25) 20%,
+    rgba(255, 200, 50, 0.2) 30%,
+    rgba(100, 255, 100, 0.15) 40%,
+    rgba(30, 100, 255, 0.3) 55%,
+    rgba(140, 80, 255, 0.25) 70%,
+    rgba(215, 38, 56, 0.2) 85%,
+    transparent 100%
+  );
+  animation: chromaticShift 6s ease-in-out infinite;
+}
+
+.login-chromatic-edge-vertical {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(30, 100, 255, 0.2) 15%,
+    rgba(140, 80, 255, 0.15) 30%,
+    rgba(215, 38, 56, 0.2) 50%,
+    rgba(212, 175, 55, 0.15) 70%,
+    rgba(30, 100, 255, 0.1) 85%,
+    transparent 100%
+  );
+  animation: chromaticShiftV 8s ease-in-out infinite;
+}
+
+@keyframes chromaticShift {
+  0%, 100% { opacity: 0.6; transform: translateX(-5%); }
+  50% { opacity: 1; transform: translateX(5%); }
+}
+
+@keyframes chromaticShiftV {
+  0%, 100% { opacity: 0.4; transform: translateY(-3%); }
+  50% { opacity: 0.8; transform: translateY(3%); }
+}
+
+/* --- Metallic Logo Sheen --- */
+.login-metallic-sheen {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.6) 45%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.6) 55%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: metalSheen 4s ease-in-out infinite;
+}
+
+@keyframes metalSheen {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* --- Logo Container 3D feel --- */
+.login-logo-container {
+  transform: perspective(600px) rotateX(2deg);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.login-logo-container:hover {
+  transform: perspective(600px) rotateX(0deg) scale(1.05);
+}
+
+/* --- Gradient text for "Market" --- */
+.login-text-gradient {
+  background: linear-gradient(135deg, #D72638 0%, #E8363D 50%, #FF4D54 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Input Fields --- */
+.login-input {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(200, 200, 220, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.login-input:focus {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(215, 38, 56, 0.4);
+  box-shadow:
+    0 0 0 3px rgba(215, 38, 56, 0.08),
+    inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.login-input::placeholder {
+  color: #c0c0cc;
+}
+
+/* --- Input Glow Effect (on focus) --- */
+.login-input-glow {
+  box-shadow:
+    0 0 15px rgba(215, 38, 56, 0.08),
+    0 0 30px rgba(30, 100, 255, 0.04),
+    0 0 45px rgba(212, 175, 55, 0.03);
+  border-radius: 16px;
+  animation: inputGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes inputGlowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px rgba(215, 38, 56, 0.08),
+      0 0 30px rgba(30, 100, 255, 0.04);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(215, 38, 56, 0.12),
+      0 0 40px rgba(30, 100, 255, 0.06);
+  }
+}
+
+/* --- 3D Volumetric Submit Button --- */
+.login-submit-btn {
+  background: linear-gradient(
+    180deg,
+    #E8363D 0%,
+    #D72638 40%,
+    #B81E2E 100%
+  );
+  box-shadow:
+    0 6px 20px rgba(215, 38, 56, 0.35),
+    0 2px 6px rgba(215, 38, 56, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.login-submit-btn:hover:not(:disabled) {
+  box-shadow:
+    0 8px 30px rgba(215, 38, 56, 0.45),
+    0 4px 12px rgba(215, 38, 56, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.login-submit-btn:active:not(:disabled) {
+  box-shadow:
+    0 2px 10px rgba(215, 38, 56, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Button Pulsing Inner Glow --- */
+.login-btn-pulse {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 60%
+  );
+  animation: btnPulse 3s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* --- Silver Metallic Text --- */
+.login-silver-text {
+  background: linear-gradient(
+    135deg,
+    #8a8a9a 0%,
+    #b8b8c8 30%,
+    #c8c8d8 50%,
+    #b8b8c8 70%,
+    #8a8a9a 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-silver-text-subtle {
+  background: linear-gradient(
+    135deg,
+    #a0a0b0 0%,
+    #c0c0cc 40%,
+    #d0d0da 60%,
+    #a0a0b0 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Back Link Hover --- */
+.login-back-link {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.login-back-link:hover {
+  background: rgba(215, 38, 56, 0.03);
+}
+
+.login-back-link:hover .login-silver-text {
+  background: linear-gradient(135deg, #D72638, #E8363D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===================================================================
+   ADMIN PANEL – Premium Glassmorphism Styles
+   =================================================================== */
+
+/* --- Admin Page Background --- */
+.admin-glass-bg {
+  background: linear-gradient(135deg, #f0f2ff 0%, #ffffff 30%, #faf8f5 60%, #f5f0ff 100%);
+  min-height: 100vh;
+}
+
+/* --- Admin Sidebar --- */
+.admin-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(250, 248, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.72) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(224, 224, 234, 0.4);
+  box-shadow:
+    4px 0 30px rgba(0, 0, 0, 0.03),
+    inset -1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+/* --- Admin Header --- */
+.admin-header {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  border-bottom: 1px solid rgba(224, 224, 234, 0.35);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
+}
+
+/* --- Admin Nav Active Item --- */
+.admin-nav-active {
+  position: relative;
+}
+
+.admin-nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: linear-gradient(180deg, #D72638, #E8363D);
+  border-radius: 0 4px 4px 0;
+}
+
+/* --- Admin Glass Cards (general purpose) --- */
+.admin-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(250, 248, 255, 0.45) 100%
+  );
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  border: 1px solid rgba(224, 224, 234, 0.4);
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.04),
+    0 1px 8px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* --- Admin Avatar --- */
+.admin-avatar {
+  background: linear-gradient(
+    135deg,
+    rgba(215, 38, 56, 0.06) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  border: 1.5px solid rgba(215, 38, 56, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.admin-avatar:hover {
+  border-color: rgba(215, 38, 56, 0.25);
+  box-shadow: 0 0 20px rgba(215, 38, 56, 0.08);
+}
+
+/* --- Admin Logo Box --- */
+.admin-logo-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-logo-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.4) 45%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.4) 55%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: metalSheen 5s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* --- Admin Mobile Bottom Nav --- */
+.admin-mobile-nav {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-top: 1px solid rgba(224, 224, 234, 0.35);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.04);
+}
+
+/* --- Admin Form Inputs --- */
+.admin-form-input {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(200, 200, 220, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  color: #1a1a2e;
+}
+
+.admin-form-input:focus {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(215, 38, 56, 0.35);
+  box-shadow:
+    0 0 0 3px rgba(215, 38, 56, 0.06),
+    inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.admin-form-input::placeholder {
+  color: #b0b0c0;
+}
+
+/* Select styling */
+.admin-form-input option {
+  background: #ffffff;
+  color: #1a1a2e;
+}
+
+/* --- Shimmer for light glass skeletons --- */
+.shimmer-glass {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3) 25%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===================================================================
+   CATALOG – Dark Glassmorphism Styles
+   =================================================================== */
+
+/* --- Base Dark Background --- */
+.catalog-dark-bg {
+  background: linear-gradient(135deg, #0A0A0C 0%, #111116 50%, #0F0F14 100%);
+}
+
+/* --- Dark Glass Header/Footer --- */
+.catalog-header, .catalog-footer {
+  background: rgba(10, 10, 12, 0.6);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+.catalog-header {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.catalog-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* --- Text Gradients --- */
+.catalog-text-gradient {
+  background: linear-gradient(135deg, #FF4D54, #D72638);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Dark Glass Subtle Box (for stock count) --- */
+.catalog-glass-subtle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Search Input --- */
+.catalog-search-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.catalog-search-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(215, 38, 56, 0.5);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(215, 38, 56, 0.15);
+}
+
+/* --- Dark Glass Cards --- */
+.catalog-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* --- Category Chips --- */
+.catalog-chip-inactive {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.catalog-chip-inactive:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Logo Box --- */
+.catalog-logo-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.catalog-logo-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: metalSheen 4s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
 }
