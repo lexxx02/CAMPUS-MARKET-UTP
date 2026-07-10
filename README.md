@@ -3,11 +3,11 @@
 Este proyecto es una solución integral (Backend + Frontend) para la gestión de productos, inventario y reportes de los kioscos ubicados en el campus de la UTP.
 
 ## 👥 Equipo de Trabajo (Integrantes)
-- [Nombre del Integrante 1]
-- [Nombre del Integrante 2]
-- [Nombre del Integrante 3]
-
-*(Nota: Reemplaza estos corchetes con los nombres reales de tu grupo antes de subirlo)*
+- Leo Jesús Espinoza Cueva
+- Roland Sandoval Rodriguez
+- Luis Alberto Camacho Rufino
+- Alex Juarez Zeta
+- Diego Ruger Salazar 
 
 ---
 

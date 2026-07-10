@@ -50,14 +50,15 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Rutas públicas (sin autenticación)
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+
+                // Dashboard stats — solo ADMIN
+                .requestMatchers(HttpMethod.GET, "/api/products/dashboard").hasRole("ADMIN")
 
                 // Rutas GET accesibles para ADMIN y ESTUDIANTE
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/kiosks/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-
-                // Dashboard stats — solo ADMIN
-                .requestMatchers(HttpMethod.GET, "/api/products/dashboard").hasRole("ADMIN")
 
                 // Reportes — solo ADMIN
                 .requestMatchers(HttpMethod.GET, "/api/reports/**").hasRole("ADMIN")
