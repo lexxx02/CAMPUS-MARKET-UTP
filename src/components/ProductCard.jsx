@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
+import { Heart, MapPin } from 'lucide-react';
 import StockBadge from './StockBadge';
 import useProductStore from '../context/useProductStore';
-import { MapPin } from 'lucide-react';
+import useFavoritesStore from '../context/useFavoritesStore';
 
 const ProductCard = ({ product, index = 0 }) => {
   const { categories } = useProductStore();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
   const category = categories.find(c => c.id === product.category);
-
+  const liked = isFavorite(product.id);
 
   return (
     <motion.div
@@ -39,7 +41,29 @@ const ProductCard = ({ product, index = 0 }) => {
           <StockBadge stock={product.stock} size="xs" theme="light" />
         </div>
 
-
+        {/* ❤️ Favorite button */}
+        <motion.button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(product.id);
+          }}
+          whileTap={{ scale: 0.75 }}
+          className="absolute bottom-3 right-3 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-white transition-colors"
+          aria-label={liked ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+        >
+          <motion.div
+            animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Heart
+              className={`w-4 h-4 sm:w-[18px] sm:h-[18px] transition-colors duration-200 ${
+                liked
+                  ? 'fill-[#D72638] text-[#D72638]'
+                  : 'fill-none text-gray-400 hover:text-gray-600'
+              }`}
+            />
+          </motion.div>
+        </motion.button>
       </div>
 
       {/* ── Bottom Half: Info Area ── */}
@@ -79,3 +103,4 @@ const ProductCard = ({ product, index = 0 }) => {
 };
 
 export default ProductCard;
+

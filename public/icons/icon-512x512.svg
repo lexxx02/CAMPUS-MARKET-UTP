@@ -1,15 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="80" fill="#0A0A0A"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="80" fill="#C1272D"/>
   <defs>
-    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#F5A623"/>
-      <stop offset="100%" style="stop-color:#FFD166"/>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f0f0f0"/>
     </linearGradient>
   </defs>
-  <!-- Shopping bag -->
-  <path d="M160 200 C160 200 150 440 150 440 C150 455 162 465 175 465 L337 465 C350 465 362 455 362 440 L352 200 Z" fill="none" stroke="url(#iconGrad)" stroke-width="12" stroke-linejoin="round"/>
-  <!-- Handle -->
-  <path d="M200 200 C200 140 220 100 256 100 C292 100 312 140 312 200" fill="none" stroke="url(#iconGrad)" stroke-width="12" stroke-linecap="round"/>
-  <!-- CM Text -->
-  <text x="256" y="360" font-family="Inter, sans-serif" font-size="80" font-weight="800" fill="url(#iconGrad)" text-anchor="middle">CM</text>
+  <path d="M160 200 C160 200 150 420 150 420 C150 436 161 446 176 446 L336 446 C351 446 362 436 362 420 L352 200 Z" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M200 200 C200 140 220 100 256 100 C292 100 312 140 312 200" fill="none" stroke="url(#g2)" stroke-width="12" stroke-linecap="round"/>
+  <text x="256" y="350" font-family="Arial, sans-serif" font-size="70" font-weight="800" fill="white" text-anchor="middle">UTP</text>
 </svg>

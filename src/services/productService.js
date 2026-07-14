@@ -8,10 +8,14 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // ─── Helper: Headers con JWT ────────────────────────────────
-const headers = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('cm_token')}`,
-});
+const headers = () => {
+  const token = localStorage.getItem('cm_token');
+  const h = { 'Content-Type': 'application/json' };
+  if (token && token !== 'null') {
+    h['Authorization'] = `Bearer ${token}`;
+  }
+  return h;
+};
 
 // ─── Helper: Manejo de respuesta ────────────────────────────
 const handle = async (res) => {
@@ -191,10 +195,13 @@ export const getDashboardStats = async () => {
 // ════════════════════════════════════════════════════════════
 
 export const downloadReport = async (type) => {
+  const token = localStorage.getItem('cm_token');
+  const reqHeaders = {};
+  if (token && token !== 'null') {
+    reqHeaders['Authorization'] = `Bearer ${token}`;
+  }
   const res = await fetch(`${API_URL}/reports/${type}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('cm_token')}`,
-    },
+    headers: reqHeaders,
   });
   if (!res.ok) throw new Error('Error al generar reporte');
   const blob = await res.blob();

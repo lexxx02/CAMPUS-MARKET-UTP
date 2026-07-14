@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Coffee, Cookie, Utensils, IceCream, Candy, LayoutGrid, X, MapPin } from 'lucide-react';
 import useProductStore from '../context/useProductStore';
+import useFavoritesStore from '../context/useFavoritesStore';
 import ProductCard from '../components/ProductCard';
 import { ProductCardSkeleton } from '../components/Skeleton';
 
@@ -25,13 +26,37 @@ const HomePage = () => {
     getFilteredProducts,
   } = useProductStore();
 
+  const { favorites } = useFavoritesStore();
+  const [visibleCount, setVisibleCount] = useState(4);
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
     fetchKiosks();
   }, []);
 
-  const filtered = getFilteredProducts();
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(4);
+  }, [searchQuery, selectedCategory, selectedKiosk]);
+
+  // Get filtered products, then:
+  // 1. Hide favorited products that are out of stock (total stock = 0)
+  // 2. Sort favorites to the top
+  const allFiltered = getFilteredProducts();
+  const filtered = allFiltered
+    .filter(p => {
+      const isFav = favorites.includes(p.id);
+      if (!isFav) return true; // non-favorites always show
+      // For favorites, hide if total stock is 0
+      const totalStock = Object.values(p.stock || {}).reduce((sum, v) => sum + v, 0);
+      return totalStock > 0;
+    })
+    .sort((a, b) => {
+      const aFav = favorites.includes(a.id) ? 0 : 1;
+      const bFav = favorites.includes(b.id) ? 0 : 1;
+      return aFav - bFav;
+    });
 
   // Build result label
   const getResultLabel = () => {
@@ -178,16 +203,29 @@ const HomePage = () => {
           {Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)}
         </div>
       ) : filtered.length > 0 ? (
-        <motion.div
-          layout
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
-        >
-          <AnimatePresence mode="popLayout">
-            {filtered.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        <div className="space-y-8">
+          <motion.div
+            layout
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.slice(0, visibleCount).map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+
+          {visibleCount < filtered.length && (
+            <div className="flex justify-center pt-4 pb-8">
+              <button
+                onClick={() => setVisibleCount(prev => prev + 4)}
+                className="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+              >
+                Cargar más productos
+              </button>
+            </div>
+          )}
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
