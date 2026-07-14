@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'icons/*.svg'],
+      includeAssets: ['favicon.svg', 'robots.txt', 'icons/*.svg', 'icons/*.png'],
       manifest: {
         name: 'Campus Market - Kioscos UTP',
         short_name: 'Campus Market',
@@ -21,19 +21,19 @@ export default defineConfig({
         categories: ['food', 'shopping'],
         icons: [
           {
-            src: '/icons/icon-192x192.svg',
+            src: '/icons/LOGO-CM-UTP.png',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/png'
           },
           {
-            src: '/icons/icon-512x512.svg',
+            src: '/icons/LOGO-CM-UTP.png',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/png'
           },
           {
-            src: '/icons/icon-512x512.svg',
+            src: '/icons/LOGO-CM-UTP.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
