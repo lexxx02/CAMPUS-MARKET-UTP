@@ -76,7 +76,7 @@ const ProductCard = ({ product, index = 0 }) => {
           <div className="flex items-center justify-between group gap-1">
             <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
-              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">Kiosko 1</span>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">K1</span>
             </div>
             <div className="scale-[0.75] sm:scale-100 origin-right shrink-0">
               <StockBadge stock={product.stock} kioskId="kiosk-1" size="xs" theme="light" />
@@ -86,7 +86,7 @@ const ProductCard = ({ product, index = 0 }) => {
           <div className="flex items-center justify-between group gap-1">
             <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
-              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">Kiosko 2</span>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">K2</span>
             </div>
             <div className="scale-[0.75] sm:scale-100 origin-right shrink-0">
               <StockBadge stock={product.stock} kioskId="kiosk-2" size="xs" theme="light" />
