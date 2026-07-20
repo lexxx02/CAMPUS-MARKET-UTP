@@ -62,6 +62,7 @@ export const getProducts = async () => {
   const { data, error } = await supabase
     .from('producto')
     .select('*, categoria(id_categoria, nombre)')
+    .eq('activo', true)
     .order('id_producto', { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -132,6 +133,7 @@ export const getCategories = async () => {
   const { data, error } = await supabase
     .from('categoria')
     .select('*')
+    .eq('activo', true)
     .order('id_categoria', { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -179,6 +181,7 @@ export const getKiosks = async () => {
   const { data, error } = await supabase
     .from('kiosco')
     .select('*')
+    .eq('activo', true)
     .order('id_kiosco', { ascending: true });
 
   if (error) throw new Error(error.message);
