@@ -17,7 +17,10 @@ export const login = async (correo, contrasena) => {
     password: contrasena,
   });
 
-  if (error) throw new Error('Credenciales incorrectas');
+  if (error) {
+    console.error('Error exacto de Supabase:', error);
+    throw new Error('Credenciales incorrectas');
+  }
 
   // Guardamos el rol y nombre en localStorage para acceso rápido
   // El rol se obtiene de los metadatos del usuario en Supabase Auth

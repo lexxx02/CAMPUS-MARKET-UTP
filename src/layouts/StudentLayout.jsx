@@ -90,12 +90,7 @@ const StudentLayout = () => {
               <span className="hidden sm:inline text-[#333]">|</span>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-3 h-3" />
-                Sede Central
-              </span>
-              <span className="hidden sm:inline text-[#333]">|</span>
-              <span className="flex items-center gap-1.5">
-                <Package className="w-3 h-3" />
-                Proyecto Integrador
+                Sede Piura
               </span>
             </div>
           </div>

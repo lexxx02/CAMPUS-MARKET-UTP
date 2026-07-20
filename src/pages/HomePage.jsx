@@ -83,8 +83,8 @@ const HomePage = () => {
       <section className="pt-6 pb-2">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <h1 className="text-3xl sm:text-4xl font-bold text-[#111111] tracking-tight leading-tight max-w-2xl">
-            Encuentra lo que necesitas antes de{' '}
-            <span className="text-[#D72638]">salir de clase.</span>
+            ¿Ganas de un antojo? Verifica si hay stock{' '}
+            <span className="text-[#D72638]">antes de moverte</span>
           </h1>
 
           {/* Decorative icons */}
@@ -106,11 +106,10 @@ const HomePage = () => {
           {/* "Todos" chip */}
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border whitespace-nowrap transition-all duration-200 shadow-sm ${
-              !selectedCategory
-                ? 'bg-[#D72638] text-white border-[#D72638]'
-                : 'bg-[#F2EFE9] text-[#555] border-transparent hover:bg-[#EAE5DB]'
-            }`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border whitespace-nowrap transition-all duration-200 shadow-sm ${!selectedCategory
+              ? 'bg-[#D72638] text-white border-[#D72638]'
+              : 'bg-[#F2EFE9] text-[#555] border-transparent hover:bg-[#EAE5DB]'
+              }`}
           >
             <LayoutGrid className="w-4 h-4" />
             Todos
@@ -128,17 +127,16 @@ const HomePage = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   onClick={() => setSelectedCategory(isActive ? null : cat.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border whitespace-nowrap transition-all duration-200 shadow-sm ${
-                    isActive
-                      ? 'bg-[#D72638] text-white border-[#D72638]'
-                      : 'bg-[#F2EFE9] text-[#555] border-transparent hover:bg-[#EAE5DB]'
-                  }`}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border whitespace-nowrap transition-all duration-200 shadow-sm ${isActive
+                    ? 'bg-[#D72638] text-white border-[#D72638]'
+                    : 'bg-[#F2EFE9] text-[#555] border-transparent hover:bg-[#EAE5DB]'
+                    }`}
                 >
-                <Icon className="w-4 h-4 text-gray-500" />
-                {cat.name}
-              </motion.button>
-            );
-          })}
+                  <Icon className="w-4 h-4 text-gray-500" />
+                  {cat.name}
+                </motion.button>
+              );
+            })}
           </AnimatePresence>
         </div>
 
@@ -148,11 +146,10 @@ const HomePage = () => {
             <span className="text-sm text-gray-500 font-medium">Ubicación:</span>
             <button
               onClick={() => setSelectedKiosk(null)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200 border ${
-                !selectedKiosk
-                  ? 'bg-[#111] text-white border-[#111]'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-              }`}
+              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200 border ${!selectedKiosk
+                ? 'bg-[#111] text-white border-[#111]'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
             >
               Todas
             </button>
@@ -160,11 +157,10 @@ const HomePage = () => {
               <button
                 key={k.id}
                 onClick={() => setSelectedKiosk(selectedKiosk === k.id ? null : k.id)}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200 border ${
-                  selectedKiosk === k.id
-                    ? 'bg-[#111] text-white border-[#111]'
-                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                }`}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200 border ${selectedKiosk === k.id
+                  ? 'bg-[#111] text-white border-[#111]'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                  }`}
               >
                 <MapPin className="w-3.5 h-3.5 text-[#D72638]" />
                 Kiosko {k.name.replace(/\D/g, '') || k.id}
