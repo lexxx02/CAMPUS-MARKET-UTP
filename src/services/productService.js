@@ -1,77 +1,57 @@
 // ============================================================
-// Product Service — Conectado al backend Spring Boot real
+// Product Service — Conectado directamente a Supabase
 // ============================================================
-// Todas las operaciones usan JWT Bearer token para autenticación.
-// Los datos se mapean del formato backend al formato frontend.
+// Reemplaza las llamadas al backend de Render (Spring Boot).
+// Tablas: producto, categoria, kiosco
 // ============================================================
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+import { supabase } from '../lib/supabaseClient';
+import * as XLSX from 'xlsx';
 
-// ─── Helper: Headers con JWT ────────────────────────────────
-const headers = () => {
-  const token = localStorage.getItem('cm_token');
-  const h = { 'Content-Type': 'application/json' };
-  if (token && token !== 'null') {
-    h['Authorization'] = `Bearer ${token}`;
-  }
-  return h;
-};
-
-// ─── Helper: Manejo de respuesta ────────────────────────────
-const handle = async (res) => {
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || `Error HTTP ${res.status}`);
-  }
-  // DELETE retorna 204 sin body
-  if (res.status === 204) return { success: true };
-  return res.json();
-};
-
-// ─── Mapeo: Backend DTO → Formato Frontend ──────────────────
+// ─── Mapeo: Fila Supabase → Formato Frontend ─────────────────
 const mapProduct = (p) => ({
-  id: p.id,
-  name: p.name,
-  description: p.description || '',
-  price: parseFloat(p.price) || 0,
-  image: p.image || '',
-  category: p.categoryId,
-  categoryName: p.categoryName || '',
-  categoryIcon: p.categoryIcon || '',
-  active: p.active,
+  id: p.id_producto,
+  name: p.nombre_producto,
+  description: p.descripcion || '',
+  price: parseFloat(p.precio) || 0,
+  image: p.imagen_url || '',
+  category: p.id_categoria,
+  categoryName: p.categoria?.nombre || '',
+  categoryIcon: '',
+  active: p.activo,
   stock: {
-    'kiosk-1': p.stockPiso2 || 0,
-    'kiosk-2': p.stockPiso7 || 0,
+    'kiosk-1': p.stock_piso2 || 0,
+    'kiosk-2': p.stock_piso7 || 0,
   },
-  stockPiso2: p.stockPiso2 || 0,
-  stockPiso7: p.stockPiso7 || 0,
+  stockPiso2: p.stock_piso2 || 0,
+  stockPiso7: p.stock_piso7 || 0,
 });
 
-// ─── Mapeo: Frontend Form → Backend DTO ─────────────────────
-const mapProductToBackend = (data) => ({
-  name: data.name,
-  description: data.description || '',
-  price: data.price,
-  stockPiso2: data.stock?.['kiosk-1'] ?? data.stockPiso2 ?? 0,
-  stockPiso7: data.stock?.['kiosk-2'] ?? data.stockPiso7 ?? 0,
-  image: data.image || '',
-  categoryId: data.category || data.categoryId,
+// ─── Mapeo: Frontend Form → Fila Supabase ────────────────────
+const mapProductToSupabase = (data) => ({
+  nombre_producto: data.name,
+  descripcion: data.description || '',
+  precio: data.price,
+  stock_piso2: data.stock?.['kiosk-1'] ?? data.stockPiso2 ?? 0,
+  stock_piso7: data.stock?.['kiosk-2'] ?? data.stockPiso7 ?? 0,
+  imagen_url: data.image || '',
+  id_categoria: data.category || data.categoryId,
 });
 
-// ─── Mapeo: Backend Category → Frontend ─────────────────────
+// ─── Mapeo: Categoria ─────────────────────────────────────────
 const mapCategory = (c) => ({
-  id: c.id,
-  name: c.name,
-  icon: c.icon || '',
-  active: c.active,
+  id: c.id_categoria,
+  name: c.nombre,
+  icon: c.icono || '',
+  active: c.activo,
 });
 
-// ─── Mapeo: Backend Kiosk → Frontend ────────────────────────
+// ─── Mapeo: Kiosko ────────────────────────────────────────────
 const mapKiosk = (k) => ({
-  id: k.id === 1 ? 'kiosk-1' : k.id === 2 ? 'kiosk-2' : `kiosk-${k.id}`,
-  name: k.name,
-  floor: parseInt(k.floor?.replace(/\D/g, '')) || k.id,
-  location: k.location,
+  id: k.id_kiosco === 1 ? 'kiosk-1' : k.id_kiosco === 2 ? 'kiosk-2' : `kiosk-${k.id_kiosco}`,
+  name: k.nombre,
+  floor: parseInt(k.piso?.replace(/\D/g, '')) || k.id_kiosco,
+  location: k.ubicacion,
 });
 
 // ════════════════════════════════════════════════════════════
@@ -79,44 +59,69 @@ const mapKiosk = (k) => ({
 // ════════════════════════════════════════════════════════════
 
 export const getProducts = async () => {
-  const data = await fetch(`${API_URL}/products`, { headers: headers() }).then(handle);
+  const { data, error } = await supabase
+    .from('producto')
+    .select('*, categoria(id_categoria, nombre)')
+    .eq('activo', true)
+    .order('id_producto', { ascending: true });
+
+  if (error) throw new Error(error.message);
   return data.map(mapProduct);
 };
 
 export const getProductById = async (id) => {
-  const data = await fetch(`${API_URL}/products/${id}`, { headers: headers() }).then(handle);
+  const { data, error } = await supabase
+    .from('producto')
+    .select('*, categoria(id_categoria, nombre)')
+    .eq('id_producto', id)
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapProduct(data);
 };
 
 export const createProduct = async (productData) => {
-  const data = await fetch(`${API_URL}/products`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify(mapProductToBackend(productData)),
-  }).then(handle);
+  const { data, error } = await supabase
+    .from('producto')
+    .insert([mapProductToSupabase(productData)])
+    .select('*, categoria(id_categoria, nombre)')
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapProduct(data);
 };
 
 export const updateProduct = async (id, productData) => {
-  const data = await fetch(`${API_URL}/products/${id}`, {
-    method: 'PUT',
-    headers: headers(),
-    body: JSON.stringify(mapProductToBackend(productData)),
-  }).then(handle);
+  const { data, error } = await supabase
+    .from('producto')
+    .update(mapProductToSupabase(productData))
+    .eq('id_producto', id)
+    .select('*, categoria(id_categoria, nombre)')
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapProduct(data);
 };
 
 export const deleteProduct = async (id) => {
-  return fetch(`${API_URL}/products/${id}`, {
-    method: 'DELETE',
-    headers: headers(),
-  }).then(handle);
+  // Soft delete: marcar como inactivo
+  const { error } = await supabase
+    .from('producto')
+    .update({ activo: false })
+    .eq('id_producto', id);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
 };
 
 export const searchProducts = async (query) => {
-  const data = await fetch(`${API_URL}/products/search?q=${encodeURIComponent(query)}`, {
-    headers: headers(),
-  }).then(handle);
+  const { data, error } = await supabase
+    .from('producto')
+    .select('*, categoria(id_categoria, nombre)')
+    .eq('activo', true)
+    .or(`nombre_producto.ilike.%${query}%,descripcion.ilike.%${query}%`);
+
+  if (error) throw new Error(error.message);
   return data.map(mapProduct);
 };
 
@@ -125,33 +130,47 @@ export const searchProducts = async (query) => {
 // ════════════════════════════════════════════════════════════
 
 export const getCategories = async () => {
-  const data = await fetch(`${API_URL}/categories`, { headers: headers() }).then(handle);
+  const { data, error } = await supabase
+    .from('categoria')
+    .select('*')
+    .eq('activo', true)
+    .order('id_categoria', { ascending: true });
+
+  if (error) throw new Error(error.message);
   return data.map(mapCategory);
 };
 
 export const createCategory = async (categoryData) => {
-  const data = await fetch(`${API_URL}/categories`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify(categoryData),
-  }).then(handle);
+  const { data, error } = await supabase
+    .from('categoria')
+    .insert([{ nombre: categoryData.name, activo: true }])
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapCategory(data);
 };
 
 export const updateCategory = async (id, categoryData) => {
-  const data = await fetch(`${API_URL}/categories/${id}`, {
-    method: 'PUT',
-    headers: headers(),
-    body: JSON.stringify(categoryData),
-  }).then(handle);
+  const { data, error } = await supabase
+    .from('categoria')
+    .update({ nombre: categoryData.name })
+    .eq('id_categoria', id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapCategory(data);
 };
 
 export const deleteCategory = async (id) => {
-  return fetch(`${API_URL}/categories/${id}`, {
-    method: 'DELETE',
-    headers: headers(),
-  }).then(handle);
+  const { error } = await supabase
+    .from('categoria')
+    .update({ activo: false })
+    .eq('id_categoria', id);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
 };
 
 // ════════════════════════════════════════════════════════════
@@ -159,18 +178,27 @@ export const deleteCategory = async (id) => {
 // ════════════════════════════════════════════════════════════
 
 export const getKiosks = async () => {
-  const data = await fetch(`${API_URL}/kiosks`, { headers: headers() }).then(handle);
+  const { data, error } = await supabase
+    .from('kiosco')
+    .select('*')
+    .eq('activo', true)
+    .order('id_kiosco', { ascending: true });
+
+  if (error) throw new Error(error.message);
   return data.map(mapKiosk);
 };
 
 export const updateKioskStock = async (kiosk, productId, cantidad) => {
-  // kiosk viene como "kiosk-1" o "kiosk-2", convertir a "piso2" o "piso7"
-  const kioskParam = kiosk === 'kiosk-1' ? 'piso2' : 'piso7';
-  const data = await fetch(`${API_URL}/kiosks/${kioskParam}/products/${productId}/stock`, {
-    method: 'PATCH',
-    headers: headers(),
-    body: JSON.stringify({ cantidad }),
-  }).then(handle);
+  const stockField = kiosk === 'kiosk-1' ? 'stock_piso2' : 'stock_piso7';
+
+  const { data, error } = await supabase
+    .from('producto')
+    .update({ [stockField]: cantidad })
+    .eq('id_producto', productId)
+    .select('*, categoria(id_categoria, nombre)')
+    .single();
+
+  if (error) throw new Error(error.message);
   return mapProduct(data);
 };
 
@@ -179,44 +207,126 @@ export const updateKioskStock = async (kiosk, productId, cantidad) => {
 // ════════════════════════════════════════════════════════════
 
 export const getDashboardStats = async () => {
-  const data = await fetch(`${API_URL}/products/dashboard`, { headers: headers() }).then(handle);
+  const { data: productos, error } = await supabase
+    .from('producto')
+    .select('*, categoria(id_categoria, nombre)')
+    .eq('activo', true);
+
+  if (error) throw new Error(error.message);
+
+  const UMBRAL = 5;
+  let disponibles = 0;
+  let bajoStock = 0;
+  let agotados = 0;
+  let totalUnidades = 0;
+  const stockCritico = [];
+
+  productos.forEach((p) => {
+    const total = (p.stock_piso2 || 0) + (p.stock_piso7 || 0);
+    totalUnidades += total;
+    if (total === 0) {
+      agotados++;
+    } else if (p.stock_piso2 < UMBRAL || p.stock_piso7 < UMBRAL) {
+      bajoStock++;
+      stockCritico.push(mapProduct(p));
+    } else {
+      disponibles++;
+    }
+  });
+
   return {
-    totalProducts: data.totalProductos,
-    available: data.disponibles,
-    lowStock: data.bajoStock,
-    outOfStock: data.agotados,
-    totalStockUnits: data.totalUnidades,
-    criticalProducts: (data.stockCritico || []).map(mapProduct),
+    totalProducts: productos.length,
+    available: disponibles,
+    lowStock: bajoStock,
+    outOfStock: agotados,
+    totalStockUnits: totalUnidades,
+    criticalProducts: stockCritico,
   };
 };
 
 // ════════════════════════════════════════════════════════════
-// REPORTES (descarga Excel)
+// REPORTES (genera Excel en el navegador con xlsx)
 // ════════════════════════════════════════════════════════════
 
 export const downloadReport = async (type) => {
-  const token = localStorage.getItem('cm_token');
-  const reqHeaders = {};
-  if (token && token !== 'null') {
-    reqHeaders['Authorization'] = `Bearer ${token}`;
+  const { data: productos, error } = await supabase
+    .from('producto')
+    .select('*, categoria(id_categoria, nombre)')
+    .eq('activo', true);
+
+  if (error) throw new Error(error.message);
+
+  const UMBRAL = 5;
+  const now = new Date().toLocaleString('es-PE');
+  let rows = [];
+  let headers = [];
+  let sheetName = '';
+  let fileName = '';
+
+  if (type === 'general') {
+    sheetName = 'Inventario General';
+    fileName = 'reporte_inventario_general.xlsx';
+    headers = ['Código', 'Producto', 'Categoría', 'Stock Piso 2', 'Stock Piso 7', 'Stock Total', 'Estado'];
+    rows = productos.map((p) => {
+      const total = (p.stock_piso2 || 0) + (p.stock_piso7 || 0);
+      const estado = total === 0 ? 'Agotado' :
+        (p.stock_piso2 < UMBRAL || p.stock_piso7 < UMBRAL) ? 'Bajo Stock' : 'Disponible';
+      return [p.id_producto, p.nombre_producto, p.categoria?.nombre || 'Sin categoría', p.stock_piso2 || 0, p.stock_piso7 || 0, total, estado];
+    });
+
+  } else if (type === 'critical-stock') {
+    sheetName = 'Stock Crítico';
+    fileName = 'reporte_stock_critico.xlsx';
+    headers = ['Producto', 'Categoría', 'Stock Piso 2', 'Stock Piso 7', 'Kiosco con bajo stock', 'Unidades restantes'];
+    rows = productos
+      .filter((p) => (p.stock_piso2 || 0) < UMBRAL || (p.stock_piso7 || 0) < UMBRAL)
+      .map((p) => {
+        const kioscoBajo = [];
+        let restantes = 0;
+        if ((p.stock_piso2 || 0) < UMBRAL) { kioscoBajo.push('Piso 2'); restantes += (p.stock_piso2 || 0); }
+        if ((p.stock_piso7 || 0) < UMBRAL) { kioscoBajo.push('Piso 7'); restantes += (p.stock_piso7 || 0); }
+        return [p.nombre_producto, p.categoria?.nombre || 'Sin categoría', p.stock_piso2 || 0, p.stock_piso7 || 0, kioscoBajo.join(', '), restantes];
+      });
+
+  } else if (type === 'kiosk/piso2') {
+    sheetName = 'Inventario Piso 2';
+    fileName = 'reporte_kiosco_piso2.xlsx';
+    headers = ['Código', 'Producto', 'Categoría', 'Cantidad disponible', 'Estado'];
+    rows = productos.map((p) => {
+      const stock = p.stock_piso2 || 0;
+      const estado = stock === 0 ? 'Agotado' : stock < UMBRAL ? 'Bajo stock' : 'Disponible';
+      return [p.id_producto, p.nombre_producto, p.categoria?.nombre || 'Sin categoría', stock, estado];
+    });
+
+  } else if (type === 'kiosk/piso7') {
+    sheetName = 'Inventario Piso 7';
+    fileName = 'reporte_kiosco_piso7.xlsx';
+    headers = ['Código', 'Producto', 'Categoría', 'Cantidad disponible', 'Estado'];
+    rows = productos.map((p) => {
+      const stock = p.stock_piso7 || 0;
+      const estado = stock === 0 ? 'Agotado' : stock < UMBRAL ? 'Bajo stock' : 'Disponible';
+      return [p.id_producto, p.nombre_producto, p.categoria?.nombre || 'Sin categoría', stock, estado];
+    });
   }
-  const res = await fetch(`${API_URL}/reports/${type}`, {
-    headers: reqHeaders,
-  });
-  if (!res.ok) throw new Error('Error al generar reporte');
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `reporte_${type.replace('/', '_')}.xlsx`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+
+  // Crear workbook
+  const wb = XLSX.utils.book_new();
+  const titleRow = [`CAMPUS MARKET UTP — ${sheetName.toUpperCase()}`];
+  const dateRow = [`Generado: ${now}`];
+  const wsData = [titleRow, dateRow, headers, ...rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Ancho de columnas automático
+  ws['!cols'] = headers.map((_, i) => ({
+    wch: Math.max(headers[i]?.length || 10, ...rows.map((r) => String(r[i] || '').length)) + 4,
+  }));
+
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, fileName);
 };
 
 // ════════════════════════════════════════════════════════════
-// HELPER: Stock Status (usado por StockBadge)
+// HELPER: Stock Status
 // ════════════════════════════════════════════════════════════
 
 export const getStockStatus = (stock, kioskId) => {

@@ -1,48 +1,60 @@
 // ============================================================
-// Auth Service — Conectado al backend Spring Boot real
+// Auth Service — Conectado directamente a Supabase Auth
+// ============================================================
+// Reemplaza el sistema de JWT propio del backend de Spring Boot.
+// Usa supabase.auth.signInWithPassword() para autenticar.
 // ============================================================
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+import { supabase } from '../lib/supabaseClient';
 
 /**
- * Autentica un usuario con correo y contraseña contra el backend real.
- * Almacena el JWT token en localStorage.
+ * Autentica un usuario con correo y contraseña usando Supabase Auth.
+ * Almacena la sesión automáticamente (Supabase lo gestiona internamente).
  */
 export const login = async (correo, contrasena) => {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ correo, contrasena }),
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: correo,
+    password: contrasena,
   });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || 'Credenciales incorrectas');
-  }
-  const data = await res.json();
-  localStorage.setItem('cm_token', data.token);
-  localStorage.setItem('cm_user', JSON.stringify({
-    rol: data.rol,
-    nombre: data.nombre,
-    idUsuario: data.idUsuario,
-  }));
-  return data;
+
+  if (error) throw new Error('Credenciales incorrectas');
+
+  // Guardamos el rol y nombre en localStorage para acceso rápido
+  // El rol se obtiene de los metadatos del usuario en Supabase Auth
+  const userMeta = data.user?.user_metadata || {};
+  const sessionUser = {
+    rol: userMeta.rol || 'ADMIN',
+    nombre: userMeta.nombre || data.user?.email || 'Administrador',
+    idUsuario: data.user?.id,
+  };
+
+  localStorage.setItem('cm_user', JSON.stringify(sessionUser));
+
+  return {
+    token: data.session?.access_token,
+    ...sessionUser,
+  };
 };
 
 /**
- * Cierra sesión eliminando token y datos del usuario.
+ * Cierra la sesión en Supabase y limpia el localStorage.
  */
-export const logout = () => {
-  localStorage.removeItem('cm_token');
+export const logout = async () => {
+  await supabase.auth.signOut();
   localStorage.removeItem('cm_user');
+  localStorage.removeItem('cm_token');
 };
 
 /**
- * Retorna el JWT token almacenado.
+ * Retorna el token de acceso activo de la sesión de Supabase.
  */
-export const getToken = () => localStorage.getItem('cm_token');
+export const getToken = async () => {
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.access_token || null;
+};
 
 /**
- * Retorna los datos del usuario almacenados.
+ * Retorna los datos del usuario almacenados en localStorage.
  */
 export const getUser = () => {
   try {
@@ -53,6 +65,9 @@ export const getUser = () => {
 };
 
 /**
- * Verifica si hay un token de sesión activo.
+ * Verifica si hay una sesión activa en Supabase.
  */
-export const isAuthenticated = () => !!getToken();
+export const isAuthenticated = async () => {
+  const { data } = await supabase.auth.getSession();
+  return !!data?.session;
+};

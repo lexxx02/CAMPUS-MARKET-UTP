@@ -1,25 +1,22 @@
 // ============================================================
-// Auth Store – Zustand (conectado al backend real)
+// Auth Store – Zustand (conectado a Supabase Auth)
 // ============================================================
 
 import { create } from 'zustand';
 import * as authService from '../services/authService';
 
 const useAuthStore = create((set) => {
-  // Inicializar desde localStorage
+  // Inicializar desde localStorage de forma síncrona
   const user = authService.getUser();
-  const token = authService.getToken();
 
   return {
     user: user || null,
-    token: token || null,
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated: !!user,
     isLoading: false,
     error: null,
 
     /**
-     * Login: autentica contra el backend real con JWT.
-     * Retorna los datos del usuario si el login es exitoso.
+     * Login: autentica contra Supabase Auth.
      */
     login: async (correo, contrasena) => {
       set({ isLoading: true, error: null });
@@ -27,7 +24,6 @@ const useAuthStore = create((set) => {
         const data = await authService.login(correo, contrasena);
         set({
           user: { rol: data.rol, nombre: data.nombre, idUsuario: data.idUsuario },
-          token: data.token,
           isAuthenticated: true,
           isLoading: false,
         });
@@ -39,11 +35,22 @@ const useAuthStore = create((set) => {
     },
 
     /**
-     * Logout: elimina token y datos del localStorage.
+     * Logout: cierra la sesión en Supabase y limpia el estado.
      */
-    logout: () => {
-      authService.logout();
-      set({ user: null, token: null, isAuthenticated: false });
+    logout: async () => {
+      await authService.logout();
+      set({ user: null, isAuthenticated: false });
+    },
+
+    /**
+     * Verifica la sesión activa al cargar la app.
+     */
+    checkSession: async () => {
+      const authenticated = await authService.isAuthenticated();
+      if (!authenticated) {
+        authService.logout();
+        set({ user: null, isAuthenticated: false });
+      }
     },
 
     clearError: () => set({ error: null }),
