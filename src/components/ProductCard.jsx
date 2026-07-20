@@ -29,16 +29,12 @@ const ProductCard = ({ product, index = 0 }) => {
           loading="lazy"
         />
 
-        {/* Category chip */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-white text-[10px] font-black text-gray-800 uppercase tracking-widest shadow-sm">
+        {/* Top badges container */}
+        <div className="absolute top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-3 z-10 flex items-start justify-between gap-1 overflow-hidden pointer-events-none">
+          {/* Category chip */}
+          <span className="inline-flex items-center px-1.5 py-1 sm:px-2.5 rounded-md bg-white text-[9px] sm:text-[10px] font-black text-gray-800 uppercase tracking-widest shadow-sm truncate max-w-[45%] pointer-events-auto">
             {category?.name || 'CATEGORÍA'}
           </span>
-        </div>
-
-        {/* Global availability badge */}
-        <div className="absolute top-3 right-3 z-10">
-          <StockBadge stock={product.stock} size="xs" theme="light" />
         </div>
 
         {/* ❤️ Favorite button */}
@@ -76,23 +72,23 @@ const ProductCard = ({ product, index = 0 }) => {
         <div className="flex-1" />
 
         {/* Stock per kiosk */}
-        <div className="space-y-2 sm:space-y-2.5">
+        <div className="space-y-1.5 sm:space-y-2.5">
           <div className="flex items-center justify-between group gap-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
-              <span className="text-[11px] sm:text-xs font-bold text-gray-700 whitespace-nowrap">Kiosko 1</span>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">Kiosko 1</span>
             </div>
-            <div className="scale-[0.85] origin-right sm:scale-100">
+            <div className="scale-[0.75] sm:scale-100 origin-right shrink-0">
               <StockBadge stock={product.stock} kioskId="kiosk-1" size="xs" theme="light" />
             </div>
           </div>
           <div className="w-full border-t border-gray-100" />
           <div className="flex items-center justify-between group gap-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D72638] shrink-0" />
-              <span className="text-[11px] sm:text-xs font-bold text-gray-700 whitespace-nowrap">Kiosko 2</span>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 whitespace-nowrap truncate">Kiosko 2</span>
             </div>
-            <div className="scale-[0.85] origin-right sm:scale-100">
+            <div className="scale-[0.75] sm:scale-100 origin-right shrink-0">
               <StockBadge stock={product.stock} kioskId="kiosk-2" size="xs" theme="light" />
             </div>
           </div>
